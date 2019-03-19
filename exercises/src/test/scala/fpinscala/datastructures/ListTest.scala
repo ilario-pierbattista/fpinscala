@@ -36,5 +36,31 @@ object ListTest extends TestSuite {
       assert(Nil == List.init(List(1)))
       assert(Nil == List.init(Nil))
     }
+
+    'lenght - {
+      assert(0 == List.length(Nil))
+      assert(0 == List.length(List()))
+      assert(1 == List.length(List(1)))
+      assert(2 == List.length(List(1, 2)))
+    }
+
+    'foldLeft - {
+      assert(0 == List.foldLeft(Nil: List[Int], 0)(_ + _))
+      assert(1 == List.foldLeft(List(1), 0)(_ + _))
+      assert(10 == List.foldLeft(List(1, 2, 3, 4), 0)(_ + _))
+    }
+
+    'reverse - {
+      assert(Nil == List.reverse(Nil))
+      assert(List(1) == List.reverse(List(1)))
+      assert(List(3, 2, 1) == List.reverse(List(1, 2, 3)))
+    }
+
+    'append - {
+      assert(Nil == List.append(Nil, Nil))
+      assert(List(1, 2) == List.append(List(1, 2), Nil))
+      assert(List(3, 4) == List.append(Nil, List(3, 4)))
+      assert(List(1, 2, 3, 4) == List.append(List(1, 2), List(3, 4)))
+    }
   }
 }

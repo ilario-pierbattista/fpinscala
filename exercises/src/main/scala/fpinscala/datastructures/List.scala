@@ -44,11 +44,12 @@ object List { // `List` companion object. Contains functions for creating and wo
     }
 
   def sum2(ns: List[Int]) =
-    foldRight(ns, 0)((x, y) => x + y)
+  // foldRight(ns, 0)((x, y) => x + y)
+    foldLeft(ns, 0)(_ + _)
 
   def product2(ns: List[Double]) =
-    foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
-
+  // foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
+    foldRight(ns, 1.0)(_ * _)
 
   def tail[A](l: List[A]): List[A] = l match {
     case Cons(_, tail) => tail
@@ -74,6 +75,14 @@ object List { // `List` companion object. Contains functions for creating and wo
       case Nil => Nil
     }
 
+  dropWhile(List(1, 2, 3), (x: Int) => x % 2 == 0)
+
+  def dropWhileInferred[A](l: List[A])(f: A => Boolean): List[A] = {
+    dropWhile(l, f)
+  }
+
+  dropWhileInferred(List(1, 2, 3))(x => x % 2 == 0)
+
   def init[A](l: List[A]): List[A] =
     l match {
       case Cons(_, Nil) => Nil
@@ -81,9 +90,26 @@ object List { // `List` companion object. Contains functions for creating and wo
       case Nil => Nil
     }
 
-  def length[A](l: List[A]): Int = ???
+  def length[A](l: List[A]): Int = {
+    // Old implementation based on foldRight
+    // foldRight(l, 0)((_, c) => c + 1)
 
-  def foldLeft[A, B](l: List[A], z: B)(f: (B, A) => B): B = ???
+    foldLeft(l, 0)((c, _) => c + 1)
+  }
+
+  def foldLeft[A, B](l: List[A], z: B)(f: (B, A) => B): B =
+    l match {
+      case Nil => z
+      case Cons(h, t) => foldLeft(t, f(z, h))(f)
+    }
+
+  // def foldLeft[A, B](l: List[A], z: B)(f: (B, A) => B): B = ???
+    // TODO: Implementare in termini di foldRight
+
+  def reverse[A](l: List[A]): List[A] =
+    foldRight(l, Nil: List[A])(
+      (x, acc) => append(acc, List(x))
+    )
 
   def map[A, B](l: List[A])(f: A => B): List[B] = ???
 }
