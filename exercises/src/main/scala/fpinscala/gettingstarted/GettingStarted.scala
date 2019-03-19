@@ -155,7 +155,7 @@ object PolymorphicFunctions {
   // an `Array[A]` is sorted
   def isSorted[A](as: Array[A], gt: (A, A) => Boolean): Boolean = {
     if (as.length <= 1) true
-    else gt(as(0), as(1)) && isSorted(as.splitAt(2)(1), gt)
+    else gt(as(0), as(1)) && isSorted(as.splitAt(2)_2, gt)
   }
 
   // Polymorphic functions are often so constrained by their type

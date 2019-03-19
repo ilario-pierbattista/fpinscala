@@ -1,6 +1,16 @@
 val commonSettings = Seq(
-  scalaVersion := "2.12.1"
+  scalaVersion := "2.12.1",
+  scalacOptions ++= Seq(
+    "-Xlint",
+    "-Ypartial-unification",
+    "-language:higherKinds"
+    //"-Xfatal-warnings"
+  ),
+  libraryDependencies += "com.lihaoyi" %% "utest" % "0.5.3" % "test",
+  testFrameworks += new TestFramework("utest.runner.Framework")
 )
+
+addCommandAlias("t", "test")
 
 lazy val root = (project in file("."))
   .aggregate(exercises, answers)
