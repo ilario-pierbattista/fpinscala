@@ -62,5 +62,63 @@ object ListTest extends TestSuite {
       assert(List(3, 4) == List.append(Nil, List(3, 4)))
       assert(List(1, 2, 3, 4) == List.append(List(1, 2), List(3, 4)))
     }
+
+    'flattern2 - {
+      assert(Nil == List.flattern2(Nil))
+      assert(List(1, 2, 3, 4, 5, 6) == List.flattern2(List(
+        List(1, 2, 3),
+        Nil,
+        List(4, 5, 6)
+      )))
+    }
+
+    'listIncrementerBy1 - {
+      assert(Nil == List.listIncrementerBy1(Nil))
+      assert(List(2, 3, 4) == List.listIncrementerBy1(List(1, 2, 3)))
+    }
+
+    'stringifyDouble - {
+      assert(Nil == List.stringifyDouble(Nil))
+      assert(List("1.0", "2.4", "5.6") == List.stringifyDouble(List(1.0, 2.4, 5.6)))
+    }
+
+    'map - {
+      assert(Nil == List.map(Nil)(identity))
+      assert(List(2, 3, 4) == List.map(List(1, 2, 3))(x => x + 1))
+      assert(List("1.0", "2.4", "5.6") == List.map(List(1.0, 2.4, 5.6))(_.toString))
+    }
+
+    'filter - {
+      assert(Nil == List.filter(Nil)(_ => true))
+      assert(List(2, 4) == List.filter(List(1, 2, 3, 4))(isEven))
+    }
+
+    'flatMap - {
+      assert(Nil == List.flatMap(Nil)((x: Int) => Nil)) // Questa tipizzazione è molto strana
+      assert(List(1, 1, 2, 2, 3, 3) == List.flatMap(List(1, 2, 3))(x => List(x, x)))
+    }
+
+    'zipIntegers - {
+      assert(List(5, 7, 9) == List.zipIntegers(List(1, 2, 3), List(4, 5, 6)))
+    }
+
+    'zip - {
+      assert(List((1, "a"), (2, "b")) == List.zip(List(1, 2), List("a", "b")))
+    }
+
+    'zipWith - {
+      assert(List(5, 7, 9) == List.zipWith(List(1, 2, 3), List(4, 5, 6))(_ + _))
+      assert(List(true, false, true) == List.zipWith(
+        List(1, 2, 3),
+        List("1", "d", "3")
+      )(_.toString == _))
+    }
+
+    'hasSubsequence - {
+      assert(List.hasSubsequence(List(1,2,3,4), Nil))
+      assert(List.hasSubsequence(List(1,2,3,4), List(1,2)))
+      assert(List.hasSubsequence(List(1,2,3,4), List(2,3)))
+      assert(List.hasSubsequence(List(1,2,3,4), List(4)))
+    }
   }
 }
