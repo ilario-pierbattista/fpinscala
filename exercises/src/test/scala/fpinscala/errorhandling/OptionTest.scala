@@ -1,7 +1,10 @@
 package fpinscala.errorhandling
 
+import java.lang.Exception
+
 import utest._
 
+import scala.util.control.Exception
 import scala.{Either => _, Option => _, Some => _} // hide std library `Option`, `Some` and `Either`, since we are writing our own in this chapter
 
 
@@ -46,6 +49,34 @@ object OptionTest extends TestSuite {
 
     'variance - {
       assert(None == Option.variance(Seq()))
+    }
+
+    'map2 - {
+      def areEqual(a: Int, str: String): Boolean = a.toString == str
+
+      assert(None == Option.map2(None: Option[Int], None: Option[String])(areEqual))
+      assert(None == Option.map2(Some(1): Option[Int], None: Option[String])(areEqual))
+      assert(None == Option.map2(None: Option[Int], Some("1"): Option[String])(areEqual))
+      assert(Some(true) == Option.map2(Some(1): Option[Int], Some("1"): Option[String])(areEqual))
+    }
+
+    'sequence - {
+      assert(Some(List()) == Option.sequence(List()))
+      assert(None == Option.sequence(List(Some(1), None, Some(3))))
+      assert(Some(List(1, 2, 3)) == Option.sequence(List(Some(1), Some(2), Some(3))))
+    }
+
+    'traverse - {
+      def parseInt(x: String): Option[Int] =
+        try {
+          Some(x.toInt)
+        } catch {
+          case e => None
+        }
+
+      assert(Some(List(1, 2, 3)) == Option.traverse(List("1", "2", "3"))(parseInt))
+      assert(None == Option.traverse(List("1", "a", "3"))(parseInt))
+      assert(Some(List()) == Option.traverse(List())(parseInt))
     }
   }
 }
