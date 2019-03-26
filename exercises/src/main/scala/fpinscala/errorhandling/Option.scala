@@ -16,19 +16,11 @@ sealed trait Option[+A] {
       case Some(v) => v
     }
 
-  // Non dovrebbe usare il pattern matching
   def flatMap[B](f: A => Option[B]): Option[B] =
-    this match {
-      case None => None
-      case Some(v) => f(v)
-    }
+    this.map(f).getOrElse(None)
 
-  // Non dovrebbe usare il pattern matching
   def orElse[B >: A](ob: => Option[B]): Option[B] =
-    this match {
-      case None => ob
-      case Some(v) => Some(v)
-    }
+    this.map(Some(_)).getOrElse(ob)
 
   def filter(f: A => Boolean): Option[A] =
     this.map(f).flatMap(
@@ -67,7 +59,10 @@ object Option {
     if (xs.isEmpty) None
     else Some(xs.sum / xs.length)
 
-  def variance(xs: Seq[Double]): Option[Double] = ???
+  def variance(xs: Seq[Double]): Option[Double] =
+    mean(xs)
+      .map(m => xs.map(x => math.pow(x - m, 2)))
+      .flatMap(mean)
 
   def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = ???
 
