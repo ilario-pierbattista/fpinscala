@@ -64,12 +64,31 @@ object Option {
       .map(m => xs.map(x => math.pow(x - m, 2)))
       .flatMap(mean)
 
-  def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
+  /*def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
     a.flatMap(
       va => b.map(
         vb => f(va, vb)
       )
-    )
+    )*/
+
+  // Implementazione con for-comprehension
+  def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
+    for {
+      aa <- a
+      bb <- b
+    } yield f(aa, bb)
+
+  def map3[A, B, C, D](
+                        a: Option[A],
+                        b: Option[B],
+                        c: Option[C]
+                      )
+                      (f: (A, B, C) => D): Option[D] =
+    for {
+      aa <- a
+      bb <- b
+      cc <- c
+    } yield f(aa, bb, cc)
 
   def sequence[A](a: List[Option[A]]): Option[List[A]] =
     traverse(a)(identity)
