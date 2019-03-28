@@ -41,5 +41,44 @@ object EitherTest extends TestSuite {
       assert(Left("e") == Left("e").map2(Right("1"))(areEqual))
       assert(Right(true) == Right(1).map2(Right("1"))(areEqual))
     }
+
+    'sequence - {
+      assert(Right(List()) == Either.sequence(List()))
+      assert(Left("e1") == Either.sequence(List(Right(1), Left("e1"), Right(3), Left("e2"))))
+      assert(Right(List(1, 2, 3)) == Either.sequence(List(Right(1), Right(2), Right(3))))
+    }
+
+    'traverse - {
+      def parseInt(x: String): Either[Exception, Int] =
+        try {
+          Right(x.toInt)
+        } catch {
+          case e: Exception => Left(e)
+        }
+
+      println(Either.traverse(List("1", "a", "3"))(parseInt))
+
+      assert(Right(List()) == Either.traverse(List())(parseInt))
+      assert(Right(List(1, 2, 3)) == Either.traverse(List("1", "2", "3"))(parseInt))
+      assertMatch(
+        Either.traverse(List("1", "a", "3"))(parseInt)
+      ) {
+        case Left(e: NumberFormatException) =>
+      }
+    }
+
+    'person - {
+      assertMatch(Person.make("Ilario", 25)) {
+        case Right(Person(n: Name, a: Age)) =>
+      }
+
+      assertMatch(Person.make("", 25)) {
+        case Left("Name is empty.") =>
+      }
+
+      assertMatch(Person.make("Ilario", -1)) {
+        case Left("Age is out of range.") =>
+      }
+    }
   }
 }
