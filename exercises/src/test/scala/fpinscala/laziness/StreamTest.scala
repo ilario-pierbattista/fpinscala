@@ -28,5 +28,12 @@ object StreamTest extends TestSuite {
       assert(List() == (Stream(): Stream[Int]).takeWhile(_ <= 2).toList)
       assert(List(1, 2) == Stream(1, 2, 3, 4).takeWhile(_ <= 2).toList)
     }
+
+    'forAll - {
+      val isEven: Int => Boolean = _ % 2 == 0
+
+      assert(Stream(2, 4, 6).forAll(isEven))
+      assert(!Stream(2, 3, 6).forAll(isEven))
+    }
   }
 }

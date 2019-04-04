@@ -25,10 +25,7 @@ trait Stream[+A] {
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
   }
 
-  def fold[B, F[_]](
-                     whenEmpty: => F[B],
-                     whenCons: Cons[A] => F[B]
-                   ): F[B] =
+  def fold[B](whenEmpty: => B, whenCons: Cons[A] => B): B =
     this match {
       case Cons(h, t) => whenCons(Cons(h, t))
       case Empty => whenEmpty
@@ -61,7 +58,12 @@ trait Stream[+A] {
       }
     )
 
-  def forAll(p: A => Boolean): Boolean = ???
+  def forAll(p: A => Boolean): Boolean =
+    this fold(
+      true, {
+      case Cons(h, t) if p(h()) => t().forAll(p)
+      case _ => false
+    })
 
   def headOption: Option[A] = ???
 
