@@ -27,6 +27,7 @@ object StreamTest extends TestSuite {
     'takeWhile - {
       assert(List() == (Stream(): Stream[Int]).takeWhile(_ <= 2).toList)
       assert(List(1, 2) == Stream(1, 2, 3, 4).takeWhile(_ <= 2).toList)
+      assert(List(1, 2) == Stream(1, 2, 3, 4, -1, -3).takeWhile(_ <= 2).toList)
     }
 
     'forAll - {

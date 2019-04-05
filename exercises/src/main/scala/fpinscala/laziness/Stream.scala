@@ -34,9 +34,10 @@ trait Stream[+A] {
   def take(n: Int): Stream[A] =
     this.fold(
       Empty,
-      cons =>
-        if (n > 0) Cons(cons.h, () => cons.t().take(n - 1))
+      { case Cons(h, t) =>
+        if (n > 0) Cons(h, () => t().take(n - 1))
         else Empty
+      }
     )
 
   def drop(n: Int): Stream[A] =
@@ -57,6 +58,11 @@ trait Stream[+A] {
         else Empty
       }
     )
+  /*
+  def takeWhile(p: A => Boolean): Stream[A] =
+    this.foldRight(Empty: Stream[A])(
+      (elem, acc) =>
+    )*/
 
   def forAll(p: A => Boolean): Boolean =
     this fold(
