@@ -19,7 +19,7 @@ trait Stream[+A] {
   def exists(p: A => Boolean): Boolean =
     foldRight(false)((a, b) => p(a) || b) // Here `b` is the unevaluated recursive step that folds the tail of the stream. If `p(a)` returns `true`, `b` will never be evaluated and the computation terminates early.
 
-  @annotation.tailrec
+  @tailrec
   final def find(f: A => Boolean): Option[A] = this match {
     case Empty => None
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
@@ -50,6 +50,7 @@ trait Stream[+A] {
       }
     )
 
+  /*
   def takeWhile(p: A => Boolean): Stream[A] =
     this.fold(
       Empty,
@@ -57,12 +58,15 @@ trait Stream[+A] {
         if (p(h())) Cons(h, () => t().takeWhile(p))
         else Empty
       }
-    )
-  /*
+    )*/
+
+
   def takeWhile(p: A => Boolean): Stream[A] =
     this.foldRight(Empty: Stream[A])(
       (elem, acc) =>
-    )*/
+        if (p(elem)) Cons(() => elem, () => acc)
+        else Empty
+    )
 
   def forAll(p: A => Boolean): Boolean =
     this fold(
@@ -71,10 +75,28 @@ trait Stream[+A] {
       case _ => false
     })
 
-  def headOption: Option[A] = ???
+  // Vincolo: usare foldRight
+  def headOption: Option[A] =
+    this.foldRight(None: Option[A])(
+      (elem, _) => Some(elem)
+    )
 
   // 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
   // writing your own function signatures.
+
+  def map[B](f: A => B): Stream[B] =
+    this.foldRight(Empty: Stream[B])(
+      (elem, acc) => Cons(
+        () => f(elem),
+        () => acc
+      )
+    )
+
+  def flatMap[B](f: A => Stream[B]): Stream[B] = ???
+
+  def filter(p: A => Boolean): Stream[A] = ???
+
+  def append[B >: A](other: () => Stream[B]): Stream[B] = ???
 
   def startsWith[B](s: Stream[B]): Boolean = ???
 }
