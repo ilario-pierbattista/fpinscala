@@ -54,7 +54,7 @@ object StreamTest extends TestSuite {
     }
 
     'append - {
-      assert(List(1, 2, 3, 4) == Stream(1, 2).append(() => Stream(3, 4)).toList)
+      assert(List(1, 2, 3, 4) == Stream(1, 2).append(Stream(3, 4)).toList)
     }
   }
 }

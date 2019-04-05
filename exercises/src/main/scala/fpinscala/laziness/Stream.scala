@@ -92,11 +92,22 @@ trait Stream[+A] {
       )
     )
 
-  def flatMap[B](f: A => Stream[B]): Stream[B] = ???
+  def filter(p: A => Boolean): Stream[A] =
+    this.foldRight(Empty: Stream[A])(
+      (elem, acc) =>
+        if (p(elem)) Cons(() => elem, () => acc)
+        else acc
+    )
 
-  def filter(p: A => Boolean): Stream[A] = ???
+  def append[B >: A](other: => Stream[B]): Stream[B] =
+    this.foldRight(other)(
+      (elem, acc) => Cons(() => elem, () => acc)
+    )
 
-  def append[B >: A](other: () => Stream[B]): Stream[B] = ???
+  def flatMap[B](f: A => Stream[B]): Stream[B] =
+    this.foldRight(Empty: Stream[B])(
+      (elem, acc) => f(elem).append(acc)
+    )
 
   def startsWith[B](s: Stream[B]): Boolean = ???
 }
