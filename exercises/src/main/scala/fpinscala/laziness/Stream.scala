@@ -129,9 +129,52 @@ object Stream {
     if (as.isEmpty) empty
     else cons(as.head, apply(as.tail: _*))
 
-  val ones: Stream[Int] = Stream.cons(1, ones)
+  /*val ones: Stream[Int] = Stream.cons(1, ones) */
 
-  def from(n: Int): Stream[Int] = ???
+  val ones: Stream[Int] = unfold(1)(_ => Some((1, 1)))
 
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = ???
+  /*def constant[A](v: A): Stream[A] = cons(v, constant(v))*/
+
+  def constant[A](v: A): Stream[A] =
+    unfold(null)(_ => Some((v, null)))
+
+  /*def from(n: Int): Stream[Int] = cons(n, from(n + 1)) */
+
+  def from(n: Int): Stream[Int] =
+    unfold(n)(
+      x => Some((x, x + 1))
+    )
+
+  /*
+    def fib(): Stream[Int] = {
+      def fibGenerator(currentIndex: Int, prevValues: (Int, Int)): Stream[Int] =
+        currentIndex match {
+          case 1 => cons(1, fibGenerator(2, (1, 0)))
+          case 2 => cons(1, fibGenerator(3, (1, 1)))
+          case i => cons(
+            prevValues._1 + prevValues._2,
+            fibGenerator(i + 1, (prevValues._1 + prevValues._2, prevValues._1)))
+        }
+
+      fibGenerator(1, (0, 0))
+    }*/
+
+  def fib(): Stream[Int] = {
+    unfold((1, 0, 0)) {
+      case (1, _, _) => Some((1, (2, 1, 0)))
+      case (2, _, _) => Some((1, (3, 1, 1)))
+      case (i, n, m) => Some((n + m, (i + 1, n + m, n)))
+    }
+  }
+
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = {
+    def gen(state: S): Stream[A] = {
+      f(state) match {
+        case None => Empty
+        case Some((value, newState)) => cons(value, gen(newState))
+      }
+    }
+
+    gen(z)
+  }
 }

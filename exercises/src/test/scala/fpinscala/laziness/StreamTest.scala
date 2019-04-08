@@ -56,5 +56,23 @@ object StreamTest extends TestSuite {
     'append - {
       assert(List(1, 2, 3, 4) == Stream(1, 2).append(Stream(3, 4)).toList)
     }
+
+    'ones - {
+      assert(List(1,1,1) == Stream.ones.take(3).toList)
+    }
+
+    'constant - {
+      assert(List(2, 2, 2) == Stream.constant(2).take(3).toList)
+    }
+
+    'from - {
+      assert(List(2, 3, 4) == Stream.from(2).take(3).toList)
+    }
+
+    'fibs - {
+      assert(
+        List(1, 1, 2, 3, 5, 8) == Stream.fib().take(6).toList
+      )
+    }
   }
 }
