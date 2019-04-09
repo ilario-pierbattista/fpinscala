@@ -58,7 +58,7 @@ object StreamTest extends TestSuite {
     }
 
     'ones - {
-      assert(List(1,1,1) == Stream.ones.take(3).toList)
+      assert(List(1, 1, 1) == Stream.ones.take(3).toList)
     }
 
     'constant - {
@@ -72,6 +72,36 @@ object StreamTest extends TestSuite {
     'fibs - {
       assert(
         List(1, 1, 2, 3, 5, 8) == Stream.fib().take(6).toList
+      )
+    }
+
+    'zipWith - {
+      assert(
+        List("1a", "2b", "3c") == Stream(1, 2, 3).zipWith(Stream('a', 'b', 'c'))((i, c) => s"$i$c").toList
+      )
+    }
+
+    'zipAll - {
+      assert(
+        List(
+          (Some(1), Some('a')),
+          (Some(2), Some('b')),
+          (Some(3), Some('c'))
+        ) == Stream(1, 2, 3).zipAll(Stream('a', 'b', 'c')).toList
+      )
+      assert(
+        List(
+          (Some(1), Some('a')),
+          (Some(2), None),
+          (Some(3), None)
+        ) == Stream(1, 2, 3).zipAll(Stream('a')).toList
+      )
+      assert(
+        List(
+          (Some(1), Some('a')),
+          (Some(2), Some('b')),
+          (None, Some('c'))
+        ) == Stream(1, 2).zipAll(Stream('a', 'b', 'c')).toList
       )
     }
   }

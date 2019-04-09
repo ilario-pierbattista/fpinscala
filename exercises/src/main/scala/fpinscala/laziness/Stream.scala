@@ -31,14 +31,22 @@ trait Stream[+A] {
       case Empty => whenEmpty
     }
 
+  //  def take(n: Int): Stream[A] =
+  //    this.fold(
+  //      Empty,
+  //      { case Cons(h, t) =>
+  //        if (n > 0) Cons(h, () => t().take(n - 1))
+  //        else Empty
+  //      }
+  //    )
+
   def take(n: Int): Stream[A] =
-    this.fold(
-      Empty,
-      { case Cons(h, t) =>
-        if (n > 0) Cons(h, () => t().take(n - 1))
-        else Empty
-      }
-    )
+    Stream.unfold((this, n)) {
+      case (Cons(h, t), i) =>
+        if (i > 0) Some((h(), (t(), i - 1)))
+        else None
+      case (_, _) => None
+    }
 
   def drop(n: Int): Stream[A] =
     this.fold(
@@ -60,13 +68,20 @@ trait Stream[+A] {
       }
     )*/
 
+  //  def takeWhile(p: A => Boolean): Stream[A] =
+  //    this.foldRight(Empty: Stream[A])(
+  //      (elem, acc) =>
+  //        if (p(elem)) Cons(() => elem, () => acc)
+  //        else Empty
+  //    )
 
   def takeWhile(p: A => Boolean): Stream[A] =
-    this.foldRight(Empty: Stream[A])(
-      (elem, acc) =>
-        if (p(elem)) Cons(() => elem, () => acc)
-        else Empty
-    )
+    Stream.unfold(this) {
+      case Cons(h, t) =>
+        if (p(h())) Some((h(), t()))
+        else None
+      case Empty => None
+    }
 
   def forAll(p: A => Boolean): Boolean =
     this fold(
@@ -84,13 +99,19 @@ trait Stream[+A] {
   // 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
   // writing your own function signatures.
 
+  //  def map[B](f: A => B): Stream[B] =
+  //    this.foldRight(Empty: Stream[B])(
+  //      (elem, acc) => Cons(
+  //        () => f(elem),
+  //        () => acc
+  //      )
+  //    )
+
   def map[B](f: A => B): Stream[B] =
-    this.foldRight(Empty: Stream[B])(
-      (elem, acc) => Cons(
-        () => f(elem),
-        () => acc
-      )
-    )
+    Stream.unfold(this) {
+      case Cons(h, t) => Some((f(h()), t()))
+      case Empty => None
+    }
 
   def filter(p: A => Boolean): Stream[A] =
     this.foldRight(Empty: Stream[A])(
@@ -108,6 +129,25 @@ trait Stream[+A] {
     this.foldRight(Empty: Stream[B])(
       (elem, acc) => f(elem).append(acc)
     )
+
+  def zipWith[B, C](s2: Stream[B])(f: (A, B) => C): Stream[C] =
+    Stream.unfold((this, s2)) {
+      case (Cons(h1, t1), Cons(h2, t2)) => Some(
+        (
+          f(h1(), h2()),
+          (t1(), t2())
+        )
+      )
+      case _ => None
+    }
+
+  def zipAll[B](s2: Stream[B]): Stream[(Option[A], Option[B])] =
+    Stream.unfold((this, s2)) {
+      case (Cons(h, t), Empty) => Some(((Some(h()), None), (t(), Empty)))
+      case (Empty, Cons(h,t)) => Some(((None, Some(h())), (Empty, t())))
+      case (Cons(h1, t1), Cons(h2, t2)) => Some(((Some(h1()), Some(h2())), (t1(), t2())))
+      case _ => None
+    }
 
   def startsWith[B](s: Stream[B]): Boolean = ???
 }
