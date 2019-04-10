@@ -149,15 +149,13 @@ trait Stream[+A] {
       case _ => None
     }
 
-  def hasSubsequence[B >: A](sub: Stream[B]): Boolean = {
-    val c = Stream.unfold(this) {
+  def hasSubsequence[B >: A](sub: Stream[B]): Boolean =
+    Stream.unfold(this) {
       case Empty => None
       case Cons(h, t) => Some(
         (Cons(h, t).zipAll(sub), t())
       )
-    }
-
-    c.foldRight(false)(
+    }.foldRight(false)(
       (zipped, found) =>
         found || zipped.forAll {
           case (Some(x), Some(y)) => x == y
@@ -165,7 +163,6 @@ trait Stream[+A] {
           case _ => false
         }
     )
-  }
 
   def startsWith[B](s: Stream[B]): Boolean = ???
 }
