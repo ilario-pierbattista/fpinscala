@@ -144,10 +144,28 @@ trait Stream[+A] {
   def zipAll[B](s2: Stream[B]): Stream[(Option[A], Option[B])] =
     Stream.unfold((this, s2)) {
       case (Cons(h, t), Empty) => Some(((Some(h()), None), (t(), Empty)))
-      case (Empty, Cons(h,t)) => Some(((None, Some(h())), (Empty, t())))
+      case (Empty, Cons(h, t)) => Some(((None, Some(h())), (Empty, t())))
       case (Cons(h1, t1), Cons(h2, t2)) => Some(((Some(h1()), Some(h2())), (t1(), t2())))
       case _ => None
     }
+
+  def hasSubsequence[B >: A](sub: Stream[B]): Boolean = {
+    val c = Stream.unfold(this) {
+      case Empty => None
+      case Cons(h, t) => Some(
+        (Cons(h, t).zipAll(sub), t())
+      )
+    }
+
+    c.foldRight(false)(
+      (zipped, found) =>
+        found || zipped.forAll {
+          case (Some(x), Some(y)) => x == y
+          case (Some(_), None) => true
+          case _ => false
+        }
+    )
+  }
 
   def startsWith[B](s: Stream[B]): Boolean = ???
 }

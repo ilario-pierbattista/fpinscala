@@ -104,5 +104,11 @@ object StreamTest extends TestSuite {
         ) == Stream(1, 2).zipAll(Stream('a', 'b', 'c')).toList
       )
     }
+
+    'hasSubsequence - {
+      assert(Stream(1, 2, 3, 4).hasSubsequence(Empty))
+      assert(Stream(1, 2, 3, 4).hasSubsequence(Stream(2, 3)))
+      assert(!Stream(1, 2, 3, 4).hasSubsequence(Stream(3, 5)))
+    }
   }
 }
