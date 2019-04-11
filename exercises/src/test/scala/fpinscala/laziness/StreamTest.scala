@@ -110,5 +110,31 @@ object StreamTest extends TestSuite {
       assert(Stream(1, 2, 3, 4).hasSubsequence(Stream(2, 3)))
       assert(!Stream(1, 2, 3, 4).hasSubsequence(Stream(3, 5)))
     }
+
+    'startsWith - {
+      assert(Stream(1, 2, 3).startsWith(Stream(1, 2)))
+      assert(Stream(1, 2, 3).startsWith(Stream()))
+      assert(!Stream(1, 2, 3).startsWith(Stream(2, 3)))
+      assert(!Stream(1).startsWith(Stream(1, 2, 3)))
+    }
+
+    'tails - {
+      assert(
+        List(
+          List(2, 3),
+          List(3),
+          List(): List[Int]
+        ) == Stream(1, 2, 3)
+          .tails
+          .toList
+          .map(_.toList)
+      )
+    }
+
+    'scanRight - {
+      assert(
+        List(6, 5, 3, 0) == Stream(1, 2, 3).scanRight(0)(_ + _).toList
+      )
+    }
   }
 }

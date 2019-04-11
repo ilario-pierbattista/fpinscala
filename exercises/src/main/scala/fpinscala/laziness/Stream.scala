@@ -149,22 +149,50 @@ trait Stream[+A] {
       case _ => None
     }
 
-  def hasSubsequence[B >: A](sub: Stream[B]): Boolean =
-    Stream.unfold(this) {
-      case Empty => None
-      case Cons(h, t) => Some(
-        (Cons(h, t).zipAll(sub), t())
-      )
-    }.foldRight(false)(
-      (zipped, found) =>
-        found || zipped.forAll {
-          case (Some(x), Some(y)) => x == y
-          case (Some(_), None) => true
-          case _ => false
-        }
-    )
+  //  def hasSubsequence[B >: A](sub: Stream[B]): Boolean =
+  //    Stream.unfold(this) {
+  //      case Empty => None
+  //      case Cons(h, t) => Some(
+  //        (Cons(h, t).zipAll(sub), t())
+  //      )
+  //    }.foldRight(false)(
+  //      (zipped, found) =>
+  //        found || zipped.forAll {
+  //          case (Some(x), Some(y)) => x == y
+  //          case (Some(_), None) => true
+  //          case _ => false
+  //        }
+  //    )
 
-  def startsWith[B](s: Stream[B]): Boolean = ???
+  def hasSubsequence[B >: A](sub: Stream[B]): Boolean =
+    this.tails
+      .exists(
+        piece => piece.startsWith(sub)
+      )
+
+  def startsWith[B](s: Stream[B]): Boolean =
+    !this.zipAll(s)
+      .exists({
+        case (Some(x), Some(y)) => x != y
+        case (None, Some(_)) => true
+        case _ => false
+      })
+
+  def tails: Stream[Stream[A]] =
+    Stream.unfold(this) {
+      case Cons(_, t) => Some((t(), t()))
+      case _ => None
+    }
+
+  def scanRight[B](z: B)(f: (A, B) => B): Stream[B] =
+    this.foldRight(Stream(z))(
+      (elem, acc) => acc
+        .headOption
+        .map(h => f(elem, h))
+        .fold(acc)(
+          r => Cons(() => r, () => acc)
+        )
+    )
 }
 
 case object Empty extends Stream[Nothing]
