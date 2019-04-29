@@ -20,5 +20,9 @@ object StateTest extends TestSuite {
         case (List(16159453, -1281479697, -340305902), _) =>
       }
     }
+
+//    'simulateMachine - {
+//      State.unit(Machine(true, 5, 10))
+//    }
   }
 }
