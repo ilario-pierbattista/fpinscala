@@ -185,5 +185,42 @@ object State {
   def unit[S, A](a: A): State[S, A] =
     State(s => (a, s))
 
-  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
+  def stateGet[S](): State[S, S] = State(s => (s, s))
+
+  def stateSet[S](s: S): State[S, Unit] = State(_ => ((), s))
+
+  def modify[S](f: S => S): State[S, Unit] =
+    for {
+      s <- stateGet()
+      _ <- stateSet(f(s))
+    } yield ()
+
+  def coin(): State[Machine, Unit] =
+    modify {
+      case Machine(true, candies, coins) if candies > 0 => Machine(locked = false, candies, coins + 1)
+      case m => m
+    }
+
+  def turn(): State[Machine, Unit] =
+    modify {
+      case Machine(false, candies, coin) if candies > 0 => Machine(locked = true, candies - 1, coin)
+      case m => m
+    }
+
+  def applyCommands(inputs: List[Input]): State[Machine, Unit] =
+    inputs.foldLeft(State(m => ((), m)): State[Machine, Unit])(
+      (acc, input) => acc.flatMap(
+        _ => input match {
+          case Turn => turn()
+          case Coin => coin()
+        }
+      )
+    )
+
+  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = {
+    applyCommands(inputs)
+      .map2(stateGet())(
+        (_, machine) => (machine.candies, machine.coins)
+      )
+  }
 }

@@ -21,8 +21,20 @@ object StateTest extends TestSuite {
       }
     }
 
-//    'simulateMachine - {
-//      State.unit(Machine(true, 5, 10))
-//    }
+    'simulateMachine - {
+      assertMatch(
+        State.simulateMachine(List(Coin, Turn, Coin, Turn, Coin, Turn))
+          .run(Machine(locked = true, coins = 10, candies = 5))
+      ) {
+        case ((2, 13), _) =>
+      }
+
+      assertMatch(
+        State.simulateMachine(List(Turn, Turn, Turn, Coin, Coin, Coin, Turn))
+          .run(Machine(locked = true, coins = 10, candies = 5))
+      ) {
+        case ((4, 11), _) =>
+      }
+    }
   }
 }
