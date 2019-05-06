@@ -209,11 +209,13 @@ object State {
 
   def applyCommands(inputs: List[Input]): State[Machine, Unit] =
     inputs.foldLeft(State(m => ((), m)): State[Machine, Unit])(
-      (acc, input) => acc.flatMap(
-        _ => input match {
+      (acc, input) => acc.map2(
+        input match {
           case Turn => turn()
           case Coin => coin()
         }
+      )(
+        (_, _) => ()
       )
     )
 
